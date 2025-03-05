@@ -22,6 +22,32 @@ int compareNumbers(int a, int b)
         return 2;
 }
 
+
+bool test(std::vector<int> v)
+{
+    int prev, next, state;
+    for(int j=1; j<v.size(); j++)
+    {
+        prev = v[j-1];
+        next = v[j];
+        if(!compareNumbers(prev, next))
+            return false;
+        
+        if(j==1)
+            state = compareNumbers(prev, next);
+        else
+        {
+            if(state != compareNumbers(prev, next))
+                return false;
+            else
+                state = compareNumbers(prev, next);
+        }
+        
+    }
+    return true;
+}
+
+
 int main()
 {
     std::ifstream input("input.txt");
@@ -31,7 +57,7 @@ int main()
         return 1;   //no file, no fun
     }
 
-    std::vector<std::vector<int>> data; //wektor wektorów intów
+    std::vector<std::vector<int>> data; //vector of int vectors
 
     std::string line;
 
@@ -43,34 +69,24 @@ int main()
 
         while (ss>>num)
         {
-            row.push_back(num); //wczytujemy linijkę do row jako inty oddzielone spacją
+            row.push_back(num); //read line to row (only works for space as separator)
         }
-        data.push_back(row); //wpisujemy wektor intów w wektor wektorów
+        data.push_back(row); //save row (int vector) into vector of vectors
     }
 
     int safe = 0;
-    for(int i=0; i<data.size(); i++)
+    for(int i=0; i<data.size(); i++)    //vector of vectors
     {
-        int prev, next, state;
-        for(int j=1; j<data[i].size(); j++)
+        for(int j=0; j<data[i].size(); j++) //checking each vector
         {
-            prev = data[i][j-1];
-            next = data[i][j];
-            if(!compareNumbers(prev, next))
-                break;
+            std::vector<int> tmp = data[i];
+            tmp.erase(tmp.begin() + j);
             
-            if(j==1)
-                state = compareNumbers(prev, next);
-            else
+            if(test(tmp))
             {
-                if(state != compareNumbers(prev, next))
-                    break;
-                else
-                    state = compareNumbers(prev, next);
-            }
-            
-            if(j==data[i].size()-1)
                 safe++;
+                break;
+            }
         }
     }
 
