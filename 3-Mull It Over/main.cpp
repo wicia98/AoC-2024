@@ -3,42 +3,43 @@
 #include <string>
 #include <regex>
 
-int main()
-{
+int main() {
     std::ifstream input("input.txt");
-    if(!input)
-    {
+    if (!input) {
         std::cerr << "Nie można otworzyć pliku!" << std::endl;
-        return 1;   //no file, no fun
+        return 1;   // No file, no fun
     }
 
-    //create string named content by copying each char one by one from beginning to the end of the file
-    std::string content((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>()); 
+    // Read the entire file content into a string
+    std::string content((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
     input.close();
 
-    std::regex pattern(R"(mul\((\d{1,3}),(\d{1,3})\))"); //additional () to create groups for regex match finding, then match[1] is 1st number as a string
-    std::sregex_iterator it(content.begin(), content.end(), pattern); //creates iterator it that looks for the pattern
-    std::sregex_iterator end; //creates iterator end that points to the end of search
+    // Define regex pattern to match `do()`, `dont()`, and `mul(X,Y)`
+    std::regex pattern(R"(do\(\)|dont\(\)|mul\((\d{1,3}),(\d{1,3})\))");
+    std::sregex_iterator it(content.begin(), content.end(), pattern);
+    std::sregex_iterator end;
 
-    std::vector<std::pair<int, int>> pairs; //vector of found numbers in pairs
-
-    while(it != end) //as long as we have next pattern matches
-    {
-        std::smatch match = *it; //get match
-
-        pairs.emplace_back(std::stoi(match[1].str()), std::stoi(match[2].str())); //cast string numbers to int and save them in pairs pair
-
-        ++it; //go to next match
-    }
-
-
+    bool active = false;  // Tracks whether multiplication is valid
     int sum = 0;
-    for(const auto& p : pairs)
-    {
-        sum += p.first * p.second; //multiply pair and add it to the sum
-    }
-    
-    std::cout << sum <<std::endl;
 
+    while (it != end) {
+        std::smatch match = *it;
+
+        std::string match_str = match[0].str(); // Get full match
+        if (match_str == "do()") {
+            active = true;
+        } else if (match_str == "dont()") {
+            active = false;
+        } else if (active && match[1].matched && match[2].matched) {
+            // If active, multiply extracted numbers
+            int a = std::stoi(match[1].str());
+            int b = std::stoi(match[2].str());
+            sum += a * b;
+        }
+
+        ++it;  // Move to next match
+    }
+
+    std::cout << "Sum: " << sum << std::endl;
     return 0;
 }
