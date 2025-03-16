@@ -55,5 +55,6 @@
         "xtr1common": "cpp",
         "xutility": "cpp",
         "regex": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }
